@@ -15,7 +15,7 @@ jobs:
 
       - name: Upgrade account to BOT
         env:
-          LICHESS_TOKEN: ${{ secrets.LICHESS_TOKEN }}
+          LICHESS_TOKEN: ${{ secrets.LICHESS_BOT }}
         run: |
           API_HOST="https://lichess.org"
           curl -s -d '' "$API_HOST/api/bot/account/upgrade" -H "Authorization: Bearer $LICHESS_TOKEN"
@@ -33,8 +33,9 @@ jobs:
 
       - name: Install dependencies & configure
         env:
-          LICHESS_TOKEN: ${{ secrets.LICHESS_TOKEN }}
+          LICHESS_TOKEN: ${{ secrets.LICHESS_BOT }}
         run: |
+          set -e
           cd bot
           pip install -r requirements.txt
           cp config.yml.default config.yml
@@ -49,10 +50,17 @@ jobs:
           cfg["engine"]["uci_options"]["Threads"] = 4
           cfg["engine"]["uci_options"]["Hash"] = 2048
           cfg["engine"]["uci_options"]["Move Overhead"] = 100
-          cfg["challenge"]["modes"] = ["casual", "rated"]
+          cfg["challenge"]["modes"] = list(("casual", "rated"))
           cfg["challenge"]["concurrency"] = 4
           cfg["challenge"]["games_reserved_for_humans"] = 1
-          cfg["challenge"]["no_rated_games"] = ["Jairus1234", "WorserFish19"]
+          cfg["challenge"]["no_rated_games"] = list(("Jairus1234", "WorserFish19"))
+          cfg["matchmaking"]["allow_matchmaking"] = True
+          cfg["matchmaking"]["challenge_variant"] = "standard"
+          cfg["matchmaking"]["challenge_timeout"] = 30
+          cfg["matchmaking"]["challenge_initial_time"] = list((1, 3))
+          cfg["matchmaking"]["challenge_increment"] = list((0, 1, 2))
+          cfg["matchmaking"]["challenge_mode"] = "random"
+          cfg["matchmaking"]["delay"] = 10
           with open("config.yml", "w") as f:
               yaml.dump(cfg, f)
           '
