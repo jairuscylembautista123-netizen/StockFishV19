@@ -10,7 +10,7 @@ concurrency:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 345
     steps:
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -21,7 +21,8 @@ jobs:
         env:
           LICHESS_TOKEN: ${{ secrets.LICHESS_TOKEN }}
         run: |
-          curl -s -d '' "https://lichess.org" -H "Authorization: Bearer $LICHESS_TOKEN"
+          curl -s -X POST "https://lichess.org" \
+            -H "Authorization: Bearer $LICHESS_TOKEN"
 
       - name: Download lichess-bot, Stockfish 19 & Fairy-Stockfish
         env:
@@ -30,15 +31,15 @@ jobs:
           gh repo clone lichess-bot-devs/lichess-bot bot -- --depth 1
           mkdir -p bot/engines
 
-          # 1. Download Normal Stockfish 19 (for Standard & Chess960)
-          gh release download --repo official-stockfish/Stockfish --pattern "*linux-x86-64*" -O sf.tar
+          # 1. Download Stockfish (for Standard & Chess960)
+          gh release download --repo official-stockfish/Stockfish --pattern "*ubuntu-x86-64-avx2.tar" -O sf.tar
           mkdir -p sf_tmp
           tar -xf sf.tar -C sf_tmp --strip-components=1
-          find sf_tmp -type f -name "stockfish*" -exec mv {} bot/engines/stockfish-19 \;
+          find sf_tmp -type f -executable -name "stockfish*" -exec mv {} bot/engines/stockfish-19 \;
           chmod +x bot/engines/stockfish-19
           rm -rf sf.tar sf_tmp
 
-          # 2. Download Fairy-Stockfish (exact single Linux binary for Variants)
+          # 2. Download Fairy-Stockfish (for Variants)
           gh release download --repo fairy-stockfish/Fairy-Stockfish --pattern "fairy-stockfish-largeboard_x86-64" -O bot/engines/fairy-stockfish
           chmod +x bot/engines/fairy-stockfish
 
@@ -178,4 +179,4 @@ jobs:
       - name: Start StockFishV19
         run: |
           cd bot
-          python lichess-bot.py
+          timeout 335m python lichess-bot.py || true
