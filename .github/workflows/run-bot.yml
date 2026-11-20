@@ -38,10 +38,8 @@ jobs:
           chmod +x bot/engines/stockfish-19
           rm -rf sf.tar sf_tmp
 
-          # 2. Download Fairy-Stockfish (for Lichess Variants)
-          gh release download --repo fairy-stockfish/Fairy-Stockfish --pattern "*linux-x86-64*" -O fsf.bin || \
-          gh release download --repo fairy-stockfish/Fairy-Stockfish --pattern "*x86-64" -O fsf.bin
-          mv fsf.bin bot/engines/fairy-stockfish
+          # 2. Download Fairy-Stockfish (exact single Linux binary for Variants)
+          gh release download --repo fairy-stockfish/Fairy-Stockfish --pattern "fairy-stockfish-largeboard_x86-64" -O bot/engines/fairy-stockfish
           chmod +x bot/engines/fairy-stockfish
 
       - name: Install dependencies & configure
@@ -52,7 +50,7 @@ jobs:
           pip install -r requirements.txt
           cat << EOF > config.yml
           token: "$LICHESS_TOKEN"
-          url: "https://lichess.org/"
+          url: "https://lichess.org"
 
           engine:
             dir: "./engines/"
