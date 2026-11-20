@@ -23,16 +23,26 @@ jobs:
         run: |
           curl -s -d '' "https://lichess.org" -H "Authorization: Bearer $LICHESS_TOKEN"
 
-      - name: Download lichess-bot & Stockfish
+      - name: Download lichess-bot, Stockfish 19 & Fairy-Stockfish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh repo clone lichess-bot-devs/lichess-bot bot -- --depth 1
-          mkdir -p bot/engines/stockfish
+          mkdir -p bot/engines
+
+          # 1. Download Normal Stockfish 19 (for Standard & Chess960)
           gh release download --repo official-stockfish/Stockfish --pattern "*linux-x86-64*" -O sf.tar
-          tar -xf sf.tar -C bot/engines/stockfish --strip-components=1
-          find bot/engines/stockfish -type f -name "stockfish*" -exec mv {} bot/engines/stockfish/stockfish-linux-x86-64-universal \;
-          chmod +x bot/engines/stockfish/stockfish-linux-x86-64-universal
+          mkdir -p sf_tmp
+          tar -xf sf.tar -C sf_tmp --strip-components=1
+          find sf_tmp -type f -name "stockfish*" -exec mv {} bot/engines/stockfish-19 \;
+          chmod +x bot/engines/stockfish-19
+          rm -rf sf.tar sf_tmp
+
+          # 2. Download Fairy-Stockfish (for Lichess Variants)
+          gh release download --repo fairy-stockfish/Fairy-Stockfish --pattern "*linux-x86-64*" -O fsf.bin || \
+          gh release download --repo fairy-stockfish/Fairy-Stockfish --pattern "*x86-64" -O fsf.bin
+          mv fsf.bin bot/engines/fairy-stockfish
+          chmod +x bot/engines/fairy-stockfish
 
       - name: Install dependencies & configure
         env:
@@ -42,31 +52,63 @@ jobs:
           pip install -r requirements.txt
           cat << EOF > config.yml
           token: "$LICHESS_TOKEN"
-          url: "https://lichess.org"
+          url: "https://lichess.org/"
 
           engine:
-            dir: "./engines/stockfish/"
-            name: "stockfish-linux-x86-64-universal"
+            dir: "./engines/"
+            name: "stockfish-19"
             working_dir: ""
             protocol: "uci"
             ponder: true
             polyglot:
               enabled: false
+            online_moves:
+              max_out_of_book_moves: 10
+              max_retries: 2
+              max_depth: 20
+              lichess_cloud_analysis:
+                enabled: true
+                min_eval_depth: 18
+                move_quality: "best"
+              lichess_opening_explorer:
+                enabled: true
+                source: "masters"
+                sort: "winrate"
+                min_games: 10
+              online_egtb:
+                enabled: true
+                source: "lichess"
+                min_time: 10
+                max_pieces: 7
+                move_quality: "best"
             draw_or_resign:
-              resign_enabled: true
-              resign_score: -1000
-              resign_for_egtb_minus_two: true
-              resign_moves: 3
+              resign_enabled: false
               offer_draw_enabled: true
               offer_draw_score: 0
               offer_draw_for_zero: true
-              offer_draw_moves: 10
+              offer_draw_moves: 15
               offer_draw_pieces: 10
             uci_options:
               Move Overhead: 100
               Threads: 4
               Hash: 2048
             silence_stderr: false
+
+            engine_overrides:
+              antichess:
+                name: "fairy-stockfish"
+              atomic:
+                name: "fairy-stockfish"
+              crazyhouse:
+                name: "fairy-stockfish"
+              horde:
+                name: "fairy-stockfish"
+              kingOfTheHill:
+                name: "fairy-stockfish"
+              racingKings:
+                name: "fairy-stockfish"
+              threeCheck:
+                name: "fairy-stockfish"
 
           abort_time: 30
           fake_think_time: false
@@ -84,11 +126,19 @@ jobs:
             max_increment: 180
             min_increment: 0
             max_base: 315360000
-            min_base: 0
+            min_base: 60
             max_days: 14
             min_days: 1
             variants:
               - standard
+              - chess960
+              - antichess
+              - atomic
+              - crazyhouse
+              - horde
+              - kingOfTheHill
+              - racingKings
+              - threeCheck
             time_controls:
               - bullet
               - blitz
@@ -102,23 +152,28 @@ jobs:
             games_reserved_for_humans: 1
 
           greeting:
-            hello: "Hi! I'm {me}, running Stockfish 19. Good luck!"
+            hello: "Hi! I'm {me}, running Stockfish 19 (and Fairy-Stockfish for variants). Good luck!"
             goodbye: "Good game!"
             hello_spectators: "Hi spectators! I'm {me} running Stockfish 19."
             goodbye_spectators: "Thanks for watching!"
 
           matchmaking:
             allow_matchmaking: true
-            challenge_variant: "standard"
+            challenge_variant: "random"
             challenge_timeout: 30
             challenge_initial_time:
               - 60
               - 180
+              - 300
+              - 600
+              - 1800
             challenge_increment:
               - 0
-              - 1
               - 2
-            challenge_mode: "rated"
+              - 3
+              - 5
+            challenge_mode: "random"
+            challenge_filter: "coarse"
             delay: 10
           EOF
 
