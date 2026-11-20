@@ -116,7 +116,7 @@ jobs:
           quit_after_all_games_finish: false
 
           challenge:
-            concurrency: 2
+            concurrency: 4
             sort_by: "best"
             preference: "human"
             accept_bot: true
@@ -150,10 +150,10 @@ jobs:
             games_reserved_for_humans: 1
 
           greeting:
-            hello: "🗿🗿🗿"
-            goodbye: "🗿🗿🗿🔥🔥🔥"
-            hello_spectators: "🗿🗿🗿."
-            goodbye_spectators: "🔥"
+            hello: "hi."
+            goodbye: "gg."
+            hello_spectators: "hi."
+            goodbye_spectators: "cool."
 
           matchmaking:
             allow_matchmaking: true
