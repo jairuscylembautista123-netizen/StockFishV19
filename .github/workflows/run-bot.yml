@@ -3,6 +3,10 @@ name: Run StockFishV19
 on:
   workflow_dispatch:
 
+concurrency:
+  group: stockfishv19-bot
+  cancel-in-progress: true
+
 jobs:
   run-bot:
     runs-on: ubuntu-latest
@@ -54,7 +58,6 @@ jobs:
           cfg["challenge"]["accept_bot"] = True
           cfg["challenge"]["concurrency"] = 4
           cfg["challenge"]["games_reserved_for_humans"] = 1
-          cfg["challenge"]["no_rated_games"] = list(("Jairus1234", "WorserFish19"))
           cfg["matchmaking"]["allow_matchmaking"] = True
           cfg["matchmaking"]["challenge_variant"] = "standard"
           cfg["matchmaking"]["challenge_timeout"] = 30
