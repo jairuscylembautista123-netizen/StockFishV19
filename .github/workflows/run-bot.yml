@@ -1,0 +1,64 @@
+name: Run WorserFish19
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Upgrade account to BOT
+        env:
+          LICHESS_TOKEN: ${{ secrets.LICHESS_TOKEN }}
+        run: |
+          API_HOST="https://lichess.org"
+          curl -s -d '' "$API_HOST/api/bot/account/upgrade" -H "Authorization: Bearer $LICHESS_TOKEN"
+
+      - name: Download lichess-bot & Stockfish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh repo clone lichess-bot-devs/lichess-bot bot -- --depth 1
+          mkdir -p bot/engines/stockfish
+          gh release download --repo official-stockfish/Stockfish --pattern "*linux-x86-64*" -O sf.tar
+          tar -xf sf.tar -C bot/engines/stockfish --strip-components=1
+          find bot/engines/stockfish -type f -name "stockfish*" -exec mv {} bot/engines/stockfish/stockfish-linux-x86-64-universal \;
+          chmod +x bot/engines/stockfish/stockfish-linux-x86-64-universal
+
+      - name: Checkout your repo
+        uses: actions/checkout@v4
+        with:
+          path: my-repo
+
+      - name: Install dependencies & configure
+        env:
+          LICHESS_TOKEN: ${{ secrets.LICHESS_TOKEN }}
+        run: |
+          cp my-repo/homemade.py bot/homemade.py
+          cd bot
+          pip install -r requirements.txt
+          cp config.yml.default config.yml
+          python -c '
+          import os, yaml
+          with open("config.yml", "r") as f:
+              cfg = yaml.safe_load(f)
+          cfg["token"] = os.environ["LICHESS_TOKEN"]
+          cfg["engine"]["protocol"] = "homemade"
+          cfg["engine"]["name"] = "WorserFish19"
+          cfg["challenge"]["modes"] = ["casual"]
+          cfg["challenge"]["concurrency"] = 4
+          cfg["challenge"]["games_reserved_for_humans"] = 1
+          with open("config.yml", "w") as f:
+              yaml.dump(cfg, f)
+          '
+
+      - name: Start WorserFish19
+        run: |
+          cd bot
+          python lichess-bot.py
