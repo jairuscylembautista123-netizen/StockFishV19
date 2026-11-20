@@ -32,12 +32,12 @@ jobs:
           mkdir -p bot/engines
 
           # 1. Download Stockfish (for Standard & Chess960)
-          gh release download --repo official-stockfish/Stockfish --pattern "*ubuntu-x86-64-avx2.tar" -O sf.tar
+          gh release download --repo official-stockfish/Stockfish --pattern "*linux-x86-64*" -O sf.tar.gz
           mkdir -p sf_tmp
-          tar -xf sf.tar -C sf_tmp --strip-components=1
+          tar -xzf sf.tar.gz -C sf_tmp --strip-components=1
           find sf_tmp -type f -executable -name "stockfish*" -exec mv {} bot/engines/stockfish-19 \;
           chmod +x bot/engines/stockfish-19
-          rm -rf sf.tar sf_tmp
+          rm -rf sf.tar.gz sf_tmp
 
           # 2. Download Fairy-Stockfish (for Variants)
           gh release download --repo fairy-stockfish/Fairy-Stockfish --pattern "fairy-stockfish-largeboard_x86-64" -O bot/engines/fairy-stockfish
