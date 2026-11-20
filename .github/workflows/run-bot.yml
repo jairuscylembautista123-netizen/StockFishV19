@@ -1,4 +1,4 @@
-name: Run WorserFish19
+name: Run StockFishV19
 
 on:
   workflow_dispatch:
@@ -31,16 +31,10 @@ jobs:
           find bot/engines/stockfish -type f -name "stockfish*" -exec mv {} bot/engines/stockfish/stockfish-linux-x86-64-universal \;
           chmod +x bot/engines/stockfish/stockfish-linux-x86-64-universal
 
-      - name: Checkout your repo
-        uses: actions/checkout@v4
-        with:
-          path: my-repo
-
       - name: Install dependencies & configure
         env:
           LICHESS_TOKEN: ${{ secrets.LICHESS_TOKEN }}
         run: |
-          cp my-repo/homemade.py bot/homemade.py
           cd bot
           pip install -r requirements.txt
           cp config.yml.default config.yml
@@ -49,8 +43,12 @@ jobs:
           with open("config.yml", "r") as f:
               cfg = yaml.safe_load(f)
           cfg["token"] = os.environ["LICHESS_TOKEN"]
-          cfg["engine"]["protocol"] = "homemade"
-          cfg["engine"]["name"] = "WorserFish19"
+          cfg["engine"]["dir"] = "./engines/stockfish/"
+          cfg["engine"]["name"] = "stockfish-linux-x86-64-universal"
+          cfg["engine"]["protocol"] = "uci"
+          cfg["engine"]["uci_options"]["Threads"] = 4
+          cfg["engine"]["uci_options"]["Hash"] = 2048
+          cfg["engine"]["uci_options"]["Move Overhead"] = 100
           cfg["challenge"]["modes"] = ["casual"]
           cfg["challenge"]["concurrency"] = 4
           cfg["challenge"]["games_reserved_for_humans"] = 1
@@ -58,7 +56,7 @@ jobs:
               yaml.dump(cfg, f)
           '
 
-      - name: Start WorserFish19
+      - name: Start StockFishV19
         run: |
           cd bot
           python lichess-bot.py
