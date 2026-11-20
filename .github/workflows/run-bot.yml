@@ -54,20 +54,21 @@ jobs:
           cfg["engine"]["uci_options"]["Threads"] = 4
           cfg["engine"]["uci_options"]["Hash"] = 2048
           cfg["engine"]["uci_options"]["Move Overhead"] = 100
-          cfg["challenge"]["modes"] = list(("casual", "rated"))
+          cfg["challenge"]["modes"] = ["casual", "rated"]
           cfg["challenge"]["accept_bot"] = True
           cfg["challenge"]["concurrency"] = 4
           cfg["challenge"]["games_reserved_for_humans"] = 1
           cfg["matchmaking"]["allow_matchmaking"] = True
           cfg["matchmaking"]["challenge_variant"] = "standard"
           cfg["matchmaking"]["challenge_timeout"] = 30
-          cfg["matchmaking"]["challenge_initial_time"] = list((1, 3))
-          cfg["matchmaking"]["challenge_increment"] = list((0, 1, 2))
+          cfg["matchmaking"]["challenge_initial_time"] = [60, 180]
+          cfg["matchmaking"]["challenge_increment"] = [0, 1, 2]
           cfg["matchmaking"]["challenge_mode"] = "rated"
           cfg["matchmaking"]["delay"] = 10
           with open("config.yml", "w") as f:
               yaml.dump(cfg, f)
           '
+          grep -A 15 "challenge:" config.yml
 
       - name: Start StockFishV19
         run: |
