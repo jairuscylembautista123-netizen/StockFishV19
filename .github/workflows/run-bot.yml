@@ -19,7 +19,7 @@ jobs:
 
       - name: Upgrade account to BOT
         env:
-          LICHESS_TOKEN: ${{ secrets.LICHESS_BOT }}
+          LICHESS_TOKEN: ${{ secrets.LICHESS_TOKEN }}
         run: |
           curl -s -d '' "https://lichess.org" -H "Authorization: Bearer $LICHESS_TOKEN"
 
@@ -36,13 +36,13 @@ jobs:
 
       - name: Install dependencies & configure
         env:
-          LICHESS_TOKEN: ${{ secrets.LICHESS_BOT }}
+          LICHESS_TOKEN: ${{ secrets.LICHESS_TOKEN }}
         run: |
           cd bot
           pip install -r requirements.txt
           cat << EOF > config.yml
           token: "$LICHESS_TOKEN"
-          url: "https://lichess.org/"
+          url: "https://lichess.org"
 
           engine:
             dir: "./engines/stockfish/"
@@ -78,7 +78,7 @@ jobs:
           challenge:
             concurrency: 4
             sort_by: "best"
-            preference: "none"
+            preference: "human"
             accept_bot: true
             only_bot: false
             max_increment: 180
