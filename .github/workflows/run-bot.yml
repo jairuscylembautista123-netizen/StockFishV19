@@ -150,10 +150,10 @@ jobs:
             games_reserved_for_humans: 1
 
           greeting:
-            hello: "Hi! I'm {me}, running Stockfish 19 (and Fairy-Stockfish for variants). Good luck!"
-            goodbye: "Good game!"
-            hello_spectators: "Hi spectators! I'm {me} running Stockfish 19."
-            goodbye_spectators: "Thanks for watching!"
+            hello: "🗿🗿🗿"
+            goodbye: "🗿🗿🗿🔥🔥🔥"
+            hello_spectators: "🗿🗿🗿."
+            goodbye_spectators: "🔥"
 
           matchmaking:
             allow_matchmaking: true
