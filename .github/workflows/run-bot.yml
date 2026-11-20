@@ -21,8 +21,7 @@ jobs:
         env:
           LICHESS_TOKEN: ${{ secrets.LICHESS_BOT }}
         run: |
-          API_HOST="https://lichess.org"
-          curl -s -d '' "$API_HOST/api/bot/account/upgrade" -H "Authorization: Bearer $LICHESS_TOKEN"
+          curl -s -d '' "https://lichess.org" -H "Authorization: Bearer $LICHESS_TOKEN"
 
       - name: Download lichess-bot & Stockfish
         env:
@@ -39,36 +38,89 @@ jobs:
         env:
           LICHESS_TOKEN: ${{ secrets.LICHESS_BOT }}
         run: |
-          set -e
           cd bot
           pip install -r requirements.txt
-          cp config.yml.default config.yml
-          python -c '
-          import os, yaml
-          with open("config.yml", "r") as f:
-              cfg = yaml.safe_load(f)
-          cfg["token"] = os.environ["LICHESS_TOKEN"]
-          cfg["engine"]["dir"] = "./engines/stockfish/"
-          cfg["engine"]["name"] = "stockfish-linux-x86-64-universal"
-          cfg["engine"]["protocol"] = "uci"
-          cfg["engine"]["uci_options"]["Threads"] = 4
-          cfg["engine"]["uci_options"]["Hash"] = 2048
-          cfg["engine"]["uci_options"]["Move Overhead"] = 100
-          cfg["challenge"]["modes"] = ["casual", "rated"]
-          cfg["challenge"]["accept_bot"] = True
-          cfg["challenge"]["concurrency"] = 4
-          cfg["challenge"]["games_reserved_for_humans"] = 1
-          cfg["matchmaking"]["allow_matchmaking"] = True
-          cfg["matchmaking"]["challenge_variant"] = "standard"
-          cfg["matchmaking"]["challenge_timeout"] = 30
-          cfg["matchmaking"]["challenge_initial_time"] = [60, 180]
-          cfg["matchmaking"]["challenge_increment"] = [0, 1, 2]
-          cfg["matchmaking"]["challenge_mode"] = "rated"
-          cfg["matchmaking"]["delay"] = 10
-          with open("config.yml", "w") as f:
-              yaml.dump(cfg, f)
-          '
-          grep -A 15 "challenge:" config.yml
+          cat << EOF > config.yml
+          token: "$LICHESS_TOKEN"
+          url: "https://lichess.org/"
+
+          engine:
+            dir: "./engines/stockfish/"
+            name: "stockfish-linux-x86-64-universal"
+            working_dir: ""
+            protocol: "uci"
+            ponder: true
+            polyglot:
+              enabled: false
+            draw_or_resign:
+              resign_enabled: true
+              resign_score: -1000
+              resign_for_egtb_minus_two: true
+              resign_moves: 3
+              offer_draw_enabled: true
+              offer_draw_score: 0
+              offer_draw_for_zero: true
+              offer_draw_moves: 10
+              offer_draw_pieces: 10
+            uci_options:
+              Move Overhead: 100
+              Threads: 4
+              Hash: 2048
+            silence_stderr: false
+
+          abort_time: 30
+          fake_think_time: false
+          rate_limiting_delay: 0
+          move_overhead: 2000
+          max_takebacks_accepted: 0
+          quit_after_all_games_finish: false
+
+          challenge:
+            concurrency: 4
+            sort_by: "best"
+            preference: "none"
+            accept_bot: true
+            only_bot: false
+            max_increment: 180
+            min_increment: 0
+            max_base: 315360000
+            min_base: 0
+            max_days: 14
+            min_days: 1
+            variants:
+              - standard
+            time_controls:
+              - bullet
+              - blitz
+              - rapid
+              - classical
+            modes:
+              - casual
+              - rated
+            bullet_requires_increment: false
+            max_simultaneous_games_per_user: 4
+            games_reserved_for_humans: 1
+
+          greeting:
+            hello: "Hi! I'm {me}, running Stockfish 19. Good luck!"
+            goodbye: "Good game!"
+            hello_spectators: "Hi spectators! I'm {me} running Stockfish 19."
+            goodbye_spectators: "Thanks for watching!"
+
+          matchmaking:
+            allow_matchmaking: true
+            challenge_variant: "standard"
+            challenge_timeout: 30
+            challenge_initial_time:
+              - 60
+              - 180
+            challenge_increment:
+              - 0
+              - 1
+              - 2
+            challenge_mode: "rated"
+            delay: 10
+          EOF
 
       - name: Start StockFishV19
         run: |
