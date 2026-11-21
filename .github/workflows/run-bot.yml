@@ -83,7 +83,7 @@ jobs:
               online_egtb:
                 enabled: true
                 source: "lichess"
-                min_time: 10
+                min_time: 30
                 max_pieces: 7
                 move_quality: "best"
             draw_or_resign:
@@ -154,6 +154,9 @@ jobs:
               - casual
               - rated
             bullet_requires_increment: false
+            min_rating: 0
+            max_rating: 9999
+            allow_provisional: true
             max_simultaneous_games_per_user: 2
             games_reserved_for_humans: 1
 
