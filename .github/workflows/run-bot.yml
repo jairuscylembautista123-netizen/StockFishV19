@@ -2,10 +2,12 @@ name: Run StockFishV19
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
 
 concurrency:
   group: stockfishv19-bot
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   run-bot:
@@ -177,6 +179,14 @@ jobs:
           EOF
 
       - name: Start StockFishV19
+        continue-on-error: true
         run: |
           cd bot
-          timeout 335m python lichess-bot.py || true
+          timeout -s INT 330m python lichess-bot.py || true
+
+      - name: Trigger next workflow run
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          gh workflow run "Run StockFishV19" --repo ${{ github.repository }}
