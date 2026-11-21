@@ -88,16 +88,12 @@ jobs:
                 move_quality: "best"
             draw_or_resign:
               resign_enabled: false
-              offer_draw_enabled: true
+              offer_draw_enabled: false
               offer_draw_score: 0
-              offer_draw_for_zero: true
+              offer_draw_for_zero: false
               offer_draw_moves: 15
               offer_draw_pieces: 10
-            uci_options:
-              Move Overhead: 100
-              Threads: 4
-              Hash: 2048
-            silence_stderr: false
+          silence_stderr: false
 
           engine_overrides:
             antichess:
