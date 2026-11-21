@@ -61,15 +61,19 @@ jobs:
             working_dir: ""
             protocol: "uci"
             ponder: true
+            uci_options:
+             Move Overhead: 100
+             Threads: 4
+             Hash: 4096
             polyglot:
               enabled: false
             online_moves:
               max_out_of_book_moves: 10
               max_retries: 2
-              max_depth: 20
+              max_depth: 99
               lichess_cloud_analysis:
                 enabled: true
-                min_eval_depth: 18
+                min_eval_depth: 99
                 move_quality: "best"
               lichess_opening_explorer:
                 enabled: true
