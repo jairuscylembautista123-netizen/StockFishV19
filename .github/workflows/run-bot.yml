@@ -133,6 +133,7 @@ jobs:
             variants:
               - standard
               - chess960
+              - fromPosition
               - antichess
               - atomic
               - crazyhouse
