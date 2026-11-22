@@ -68,12 +68,12 @@ jobs:
             polyglot:
               enabled: false
             online_moves:
-              max_out_of_book_moves: 10
+              max_out_of_book_moves: 99
               max_retries: 2
-              max_depth: 99
+              max_depth: 9999
               lichess_cloud_analysis:
                 enabled: true
-                min_eval_depth: 99
+                min_eval_depth: 1
                 move_quality: "best"
               lichess_opening_explorer:
                 enabled: true
