@@ -63,7 +63,7 @@ jobs:
             ponder: true
             uci_options:
              Move Overhead: 100
-             Threads: 7
+             Threads: 4
              Hash: 4096
             polyglot:
               enabled: false
