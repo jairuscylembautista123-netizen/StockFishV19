@@ -62,7 +62,7 @@ jobs:
             protocol: "uci"
             ponder: true
             uci_options:
-             Move Overhead: 100
+             Move Overhead: 30
              Threads: 4
              Hash: 4096
             polyglot:
