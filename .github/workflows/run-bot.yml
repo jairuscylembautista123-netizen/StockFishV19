@@ -63,8 +63,10 @@ jobs:
             ponder: true
             uci_options:
              Move Overhead: 30
-             Threads: 4
-             Hash: 4096
+             Threads: 2
+             Hash: 85
+             go_commands:
+              movetime: 100
             polyglot:
               enabled: false
             online_moves:
@@ -73,7 +75,7 @@ jobs:
               max_depth: 9999
               lichess_cloud_analysis:
                 enabled: true
-                min_eval_depth: 1
+                min_eval_depth: 0
                 move_quality: "best"
               lichess_opening_explorer:
                 enabled: true
@@ -114,12 +116,12 @@ jobs:
           abort_time: 30
           fake_think_time: false
           rate_limiting_delay: 0
-          move_overhead: 2000
+          move_overhead: 30
           max_takebacks_accepted: 0
           quit_after_all_games_finish: false
 
           challenge:
-            concurrency: 4
+            concurrency: 5
             sort_by: "best"
             preference: "human"
             accept_bot: true
@@ -154,7 +156,7 @@ jobs:
             max_rating: 9999
             allow_provisional: true
             max_simultaneous_games_per_user: 2
-            games_reserved_for_humans: 1
+            games_reserved_for_humans: 0
 
           greeting:
             hello: "hi."
