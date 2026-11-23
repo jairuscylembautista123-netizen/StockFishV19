@@ -83,7 +83,7 @@ jobs:
               online_egtb:
                 enabled: true
                 source: "lichess"
-                min_time: 1.5
+                min_time: 0.1
                 max_pieces: 7
                 move_quality: "best"
             draw_or_resign:
