@@ -64,9 +64,9 @@ jobs:
             uci_options:
              Move Overhead: 30
              Threads: 4
-             Hash: 512
+             Hash: 712
              go_commands:
-              movetime: 100
+              movetime: 300
             polyglot:
               enabled: false
             online_moves:
